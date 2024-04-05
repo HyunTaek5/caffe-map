@@ -1,0 +1,56 @@
+version: '3'
+
+volumes:
+  caffe_map_db_vol:
+    driver: local
+
+services:
+  db:
+    image: mysql/mysql-server:8.0
+    container_name: caffe-map-dev-db
+    restart: always
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_520_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: caffe-map-dev-db
+    ports:
+      - '33080:3306'
+    volumes:
+      - caffe_map_db_vol:/var/lib/mysql
+
+  test-db:
+    image: mysql/mysql-server:8.0
+    container_name: caffe-map-test-db
+    restart: always
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_520_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: caffe-map-test-db
+    ports:
+      - '33081:3306'
+
+  shadow-db:
+    image: mysql/mysql-server:8.0
+    container_name: caffe-map-shadow-dev-db
+    restart: always
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_520_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: caffe-map-shadow-dev-db
+    ports:
+      - '33082:3306'
