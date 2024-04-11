@@ -5,7 +5,9 @@
   "monorepo": true,
   "root": "apps/front-api",
   "compilerOptions": {
-    "deleteOutDir": true
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/front-api/tsconfig.app.json"
   },
   "projects": {
     "front-api": {
