@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { CustomValidationPipe } from '../../domain/common/pipe/validation.pipe';
+import { CustomValidationPipe } from 'apps/domain/common/pipe/validation.pipe';
 import { json, urlencoded } from 'body-parser';
 
 async function bootstrap() {
