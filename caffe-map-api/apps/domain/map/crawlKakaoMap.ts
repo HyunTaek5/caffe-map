@@ -67,6 +67,8 @@ export const crawlKakaoMap = async (
     });
   }
 
+  await browser.close();
+
   return responseResult;
 
   // const fetchResult = await fetch(mapShareAddress).catch((err) => {
