@@ -1,9 +1,23 @@
 import { ConflictException } from '@nestjs/common';
 import httpClient from 'apps/domain/common/client/http-client';
 import puppeteer from 'puppeteer';
-import { CrawlPlaceType } from 'apps/domain/map/crawlPlace.type';
+import {
+  CrawlPlaceResult,
+  CrawlPlaceType,
+} from 'apps/domain/map/type/crawlPlace.type';
 
-export const crawlKakaoMap = async (mapShareUrl: string) => {
+/**
+ * 카카오맵 접근 api 크롤링
+ *
+ * @param mapShareUrl
+ *
+ * @returns CrawlPlaceResult[]
+ */
+export const crawlKakaoMap = async (
+  mapShareUrl: string,
+): Promise<CrawlPlaceResult[]> => {
+  let responseResult: CrawlPlaceResult[] = null;
+
   const browser = await puppeteer.launch({
     defaultViewport: null,
   });
@@ -33,11 +47,27 @@ export const crawlKakaoMap = async (mapShareUrl: string) => {
         response.status() === 200
       ) {
         const favoritePlaceList: CrawlPlaceType = await response.json();
-        console.log(favoritePlaceList);
+
+        responseResult = favoritePlaceList.result;
       }
     });
   } else {
+    await page.goto(mapShareUrl);
+
+    page.on('response', async (response) => {
+      if (
+        response.request().method() === 'GET' &&
+        response.url().includes('favorite/list.json') &&
+        response.status() === 200
+      ) {
+        const favoritePlaceList: CrawlPlaceType = await response.json();
+
+        responseResult = favoritePlaceList.result;
+      }
+    });
   }
+
+  return responseResult;
 
   // const fetchResult = await fetch(mapShareAddress).catch((err) => {
   //   console.log(err);
