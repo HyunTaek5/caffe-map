@@ -1,12 +1,11 @@
 import { ConflictException } from '@nestjs/common';
 import httpClient from 'apps/domain/common/client/http-client';
 import puppeteer from 'puppeteer';
+import { CrawlPlaceType } from 'apps/domain/map/crawlPlace.type';
 
 export const crawlKakaoMap = async (mapShareUrl: string) => {
   const browser = await puppeteer.launch({
-    headless: false,
     defaultViewport: null,
-    devtools: true,
   });
 
   const page = await browser.newPage();
@@ -26,6 +25,17 @@ export const crawlKakaoMap = async (mapShareUrl: string) => {
     const redirectedMapUrl = fetchResult['request'].res.responseUrl;
 
     await page.goto(redirectedMapUrl);
+
+    page.on('response', async (response) => {
+      if (
+        response.request().method() === 'GET' &&
+        response.url().includes('favorite/list.json') &&
+        response.status() === 200
+      ) {
+        const favoritePlaceList: CrawlPlaceType = await response.json();
+        console.log(favoritePlaceList);
+      }
+    });
   } else {
   }
 
