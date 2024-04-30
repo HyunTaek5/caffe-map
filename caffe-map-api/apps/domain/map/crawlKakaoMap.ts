@@ -16,6 +16,7 @@ import {
 export const crawlKakaoMap = async (
   mapShareUrl: string,
 ): Promise<CrawlPlaceResult[]> => {
+  let shareUrl = '';
   let responseResult: CrawlPlaceResult[] = null;
 
   const browser = await puppeteer.launch({
@@ -36,36 +37,24 @@ export const crawlKakaoMap = async (
         throw new ConflictException('지도 크롤링 중 오류가 발생했습니다.');
       });
 
-    const redirectedMapUrl = fetchResult['request'].res.responseUrl;
-
-    await page.goto(redirectedMapUrl);
-
-    page.on('response', async (response) => {
-      if (
-        response.request().method() === 'GET' &&
-        response.url().includes('favorite/list.json') &&
-        response.status() === 200
-      ) {
-        const favoritePlaceList: CrawlPlaceType = await response.json();
-
-        responseResult = favoritePlaceList.result;
-      }
-    });
+    shareUrl = fetchResult['request'].res.responseUrl;
   } else {
-    await page.goto(mapShareUrl);
-
-    page.on('response', async (response) => {
-      if (
-        response.request().method() === 'GET' &&
-        response.url().includes('favorite/list.json') &&
-        response.status() === 200
-      ) {
-        const favoritePlaceList: CrawlPlaceType = await response.json();
-
-        responseResult = favoritePlaceList.result;
-      }
-    });
+    shareUrl = mapShareUrl;
   }
+
+  await page.goto(shareUrl);
+
+  page.on('response', async (response) => {
+    if (
+      response.request().method() === 'GET' &&
+      response.url().includes('favorite/list.json') &&
+      response.status() === 200
+    ) {
+      const favoritePlaceList: CrawlPlaceType = await response.json();
+
+      responseResult = favoritePlaceList.result;
+    }
+  });
 
   await browser.close();
 
