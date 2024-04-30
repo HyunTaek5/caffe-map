@@ -27,7 +27,7 @@ export const crawlKakaoMap = async (
 
   const isShareAddress = mapShareUrl.includes('map.kakao');
 
-  // 카카오맵 공유 주소가 아닌 경우, 리다이렉트된 카카오 맵 주소로 크롤링
+  // 카카오맵 공유 주소가 아닌 경우, 카카오 맵 주소 리다이렉트 주소 처리
   if (!isShareAddress) {
     const fetchResult = await httpClient.request
       .get(mapShareUrl)
