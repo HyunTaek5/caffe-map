@@ -22,7 +22,6 @@ model Place {
   name      String
   latitude  Float
   longitude Float
-  mapId     Int?       @map("map_id")
   PlaceMap  PlaceMap[]
 
   @@map("place")
