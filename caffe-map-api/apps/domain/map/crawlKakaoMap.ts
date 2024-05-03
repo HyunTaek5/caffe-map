@@ -16,8 +16,7 @@ import {
 export const crawlKakaoMap = async (
   mapShareUrl: string,
 ): Promise<CrawlPlaceResult[]> => {
-  let shareUrl = '';
-  let responseResult: CrawlPlaceResult[] = null;
+  let shareUrl: string;
 
   const browser = await puppeteer.launch({
     defaultViewport: null,
@@ -44,21 +43,23 @@ export const crawlKakaoMap = async (
 
   await page.goto(shareUrl);
 
-  page.on('response', async (response) => {
-    if (
-      response.request().method() === 'GET' &&
-      response.url().includes('favorite/list.json') &&
-      response.status() === 200
-    ) {
-      const favoritePlaceList: CrawlPlaceType = await response.json();
+  const responseData = (): Promise<CrawlPlaceResult[]> => {
+    return new Promise((resolve: (value: CrawlPlaceResult[]) => void) => {
+      page.on('response', async (response) => {
+        if (
+          response.request().method() === 'GET' &&
+          response.url().includes('favorite/list.json') &&
+          response.status() === 200
+        ) {
+          const favoritePlaceList: CrawlPlaceType = await response.json();
 
-      responseResult = favoritePlaceList.result;
-    }
-  });
+          resolve(favoritePlaceList.result);
+        }
+      });
+    });
+  };
 
-  await browser.close();
-
-  return responseResult;
+  return await responseData();
 
   // const fetchResult = await fetch(mapShareAddress).catch((err) => {
   //   console.log(err);
