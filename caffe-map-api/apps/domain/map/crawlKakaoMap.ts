@@ -2,8 +2,11 @@ import { ConflictException } from '@nestjs/common';
 import httpClient from 'apps/domain/common/client/http-client';
 import puppeteer from 'puppeteer';
 import {
+  CrawlMapResult,
+  CrawlMapType,
   CrawlPlaceResult,
   CrawlPlaceType,
+  ResponseCrawlData,
 } from 'apps/domain/map/type/crawlPlace.type';
 
 /**
@@ -11,18 +14,20 @@ import {
  *
  * @param mapShareUrl
  *
- * @returns CrawlPlaceResult[]
+ * @returns ResponseCrawlData
  */
 export const crawlKakaoMap = async (
   mapShareUrl: string,
-): Promise<CrawlPlaceResult[]> => {
+): Promise<ResponseCrawlData> => {
   let shareUrl: string;
 
   const browser = await puppeteer.launch({
     defaultViewport: null,
+    args: ['--disable-web-security', '--no-sandbox'],
   });
 
   const page = await browser.newPage();
+  await page.setCacheEnabled(false);
 
   const isShareAddress = mapShareUrl.includes('map.kakao');
 
@@ -43,7 +48,25 @@ export const crawlKakaoMap = async (
 
   await page.goto(shareUrl);
 
-  const responseData = (): Promise<CrawlPlaceResult[]> => {
+  const responseMapData = (): Promise<CrawlMapResult> => {
+    return new Promise((resolve: (value: CrawlMapResult) => void) => {
+      page.on('response', async (response) => {
+        if (
+          response.request().method() === 'GET' &&
+          response
+            .url()
+            .includes('folder/list.json?sort=CREATE_AT&mapUserId=') &&
+          response.status() === 200
+        ) {
+          const favoriteMap: CrawlMapType = await response.json();
+
+          resolve(favoriteMap.result);
+        }
+      });
+    });
+  };
+
+  const responsePlaceData = (): Promise<CrawlPlaceResult[]> => {
     return new Promise((resolve: (value: CrawlPlaceResult[]) => void) => {
       page.on('response', async (response) => {
         if (
@@ -59,7 +82,10 @@ export const crawlKakaoMap = async (
     });
   };
 
-  return await responseData();
+  return {
+    mapInfo: await responseMapData(),
+    placeList: await responsePlaceData(),
+  };
 
   // const fetchResult = await fetch(mapShareAddress).catch((err) => {
   //   console.log(err);
