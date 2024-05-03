@@ -6,7 +6,7 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "prebuild": "rimraf dist && npx prisma generate",
+    "prebuild": "rimraf dist && npx prisma generate --schema db/prisma/schema.prisma",
     "build": "nest build front-api",
     "migrate:dev": "npx prisma migrate dev --schema db/prisma/schema.prisma",
     "migrate:prod": "npx prisma migrate deploy",
