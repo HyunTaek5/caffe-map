@@ -1,4 +1,4 @@
-export interface PlaceEntity {
+export class PlaceEntity {
   id: number;
   created_at: Date;
   updated_at: Date;
@@ -8,7 +8,7 @@ export interface PlaceEntity {
   placeMap: PlaceMapEntity[];
 }
 
-export interface MapEntity {
+export class MapEntity {
   id: number;
   created_at: Date;
   updated_at: Date;
@@ -18,7 +18,7 @@ export interface MapEntity {
   placeMap: PlaceMapEntity[];
 }
 
-export interface PlaceMapEntity {
+export class PlaceMapEntity {
   id: number;
   created_at: Date;
   updated_at: Date;
