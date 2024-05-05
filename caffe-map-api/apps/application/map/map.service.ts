@@ -25,61 +25,63 @@ export class MapService {
     let mapId: number;
     let placeId: number;
 
-    // 지도 중복 체크 후 없으면 생성
-    const existMap = await this.prisma.map.findFirst({
-      where: {
-        name: mapInfo.title,
-      },
-    });
-
-    if (!existMap) {
-      const { id: createMapId } = await this.prisma.map.create({
-        data: {
+    await this.prisma.$transaction(async (tx) => {
+      // 지도 중복 체크 후 없으면 생성
+      const existMap = await this.prisma.map.findFirst({
+        where: {
           name: mapInfo.title,
-          kakaoId: mapInfo.folderId.toString(),
         },
       });
 
-      mapId = createMapId;
-    } else {
-      // 이미 존재하는 지도라면 해당 지도의 id를 가져옴
-      mapId = existMap.id;
-    }
-
-    const promises = crawlData.placeList.map(
-      async (crawlPlace: CrawlPlaceResult) => {
-        const existPlace = await this.prisma.place.findFirst({
-          where: {
-            kakaoId: crawlPlace.key,
+      if (!existMap) {
+        const { id: createMapId } = await tx.map.create({
+          data: {
+            name: mapInfo.title,
+            kakaoId: mapInfo.folderId.toString(),
           },
         });
 
-        if (!existPlace) {
-          const { id: createPlaceId } = await this.prisma.place.create({
-            data: {
+        mapId = createMapId;
+      } else {
+        // 이미 존재하는 지도라면 해당 지도의 id를 가져옴
+        mapId = existMap.id;
+      }
+
+      const promises = crawlData.placeList.map(
+        async (crawlPlace: CrawlPlaceResult) => {
+          const existPlace = await this.prisma.place.findFirst({
+            where: {
               kakaoId: crawlPlace.key,
-              name: crawlPlace.display1,
-              address: crawlPlace.display2,
-              latitude: crawlPlace.x,
-              longitude: crawlPlace.y,
             },
           });
 
-          placeId = createPlaceId;
-        } else {
-          placeId = existPlace.id;
-        }
+          if (!existPlace) {
+            const { id: createPlaceId } = await tx.place.create({
+              data: {
+                kakaoId: crawlPlace.key,
+                name: crawlPlace.display1,
+                address: crawlPlace.display2,
+                latitude: crawlPlace.x,
+                longitude: crawlPlace.y,
+              },
+            });
 
-        // 지도와 장소 연결
-        await this.prisma.placeMap.create({
-          data: {
-            mapId: mapId,
-            placeId: placeId,
-          },
-        });
-      },
-    );
+            placeId = createPlaceId;
+          } else {
+            placeId = existPlace.id;
+          }
 
-    await Promise.all(promises);
+          // 지도와 장소 연결
+          await tx.placeMap.create({
+            data: {
+              mapId: mapId,
+              placeId: placeId,
+            },
+          });
+        },
+      );
+
+      await Promise.all(promises);
+    });
   }
 }
