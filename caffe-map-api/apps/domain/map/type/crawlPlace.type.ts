@@ -45,6 +45,6 @@ export interface CrawlMapResult {
 }
 
 export interface ResponseCrawlData {
-  mapInfo: any;
+  mapInfo: CrawlMapResult;
   placeList: CrawlPlaceResult[];
 }
