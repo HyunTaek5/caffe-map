@@ -9,7 +9,7 @@
     "prebuild": "rimraf dist && npx prisma generate --schema db/prisma/schema.prisma",
     "build": "nest build front-api",
     "migrate:dev": "npx prisma migrate dev --schema db/prisma/schema.prisma",
-    "migrate:prod": "npx prisma migrate deploy",
+    "migrate:prod": "npx prisma migrate deploy --schema db/prisma/schema.prisma",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start:api": "nest start front-api",
     "start:api:dev": "nest start front-api --watch",
