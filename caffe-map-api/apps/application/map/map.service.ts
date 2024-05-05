@@ -23,7 +23,6 @@ export class MapService {
     const mapInfo = crawlData.mapInfo[0];
 
     let mapId: number;
-    let placeId: number;
 
     await this.prisma.$transaction(async (tx) => {
       // 지도 중복 체크 후 없으면 생성
@@ -47,41 +46,46 @@ export class MapService {
         mapId = existMap.id;
       }
 
-      const promises = crawlData.placeList.map(
-        async (crawlPlace: CrawlPlaceResult) => {
-          const existPlace = await this.prisma.place.findFirst({
-            where: {
-              kakaoId: crawlPlace.key,
-            },
-          });
+      const promises: Promise<{
+        mapId: number;
+        placeId: number;
+      }>[] = crawlData.placeList.map(async (crawlPlace: CrawlPlaceResult) => {
+        const existPlace = await this.prisma.place.findFirst({
+          where: {
+            kakaoId: crawlPlace.key,
+          },
+        });
 
-          if (!existPlace) {
-            const { id: createPlaceId } = await tx.place.create({
-              data: {
-                kakaoId: crawlPlace.key,
-                name: crawlPlace.display1,
-                address: crawlPlace.display2,
-                latitude: crawlPlace.x,
-                longitude: crawlPlace.y,
-              },
-            });
-
-            placeId = createPlaceId;
-          } else {
-            placeId = existPlace.id;
-          }
-
-          // 지도와 장소 연결
-          await tx.placeMap.create({
+        if (!existPlace) {
+          const { id: createPlaceId } = await tx.place.create({
             data: {
-              mapId: mapId,
-              placeId: placeId,
+              kakaoId: crawlPlace.key,
+              name: crawlPlace.display1,
+              address: crawlPlace.display2,
+              latitude: crawlPlace.x,
+              longitude: crawlPlace.y,
             },
           });
-        },
-      );
 
-      await Promise.all(promises);
+          return {
+            mapId: mapId,
+            placeId: createPlaceId,
+          };
+        } else {
+          return {
+            mapId: mapId,
+            placeId: existPlace.id,
+          };
+        }
+      });
+
+      await Promise.all(promises).then(async (mapPlaceResult) => {
+        // 지도와 장소 연결
+        await tx.placeMap.createMany({
+          data: mapPlaceResult,
+          skipDuplicates: true,
+        });
+      });
     });
   }
 }
