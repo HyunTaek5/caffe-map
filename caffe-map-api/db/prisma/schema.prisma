@@ -53,5 +53,6 @@ model PlaceMap {
   place     Place    @relation(fields: [placeId], references: [id])
   map       Map      @relation(fields: [mapId], references: [id])
 
+  @@unique([placeId, mapId], name: "place_map_unique")
   @@map("place_map")
 }
