@@ -48,8 +48,8 @@ export const crawlKakaoMap = async (
 
   await page.goto(shareUrl);
 
-  const responseMapData = (): Promise<CrawlMapResult> => {
-    return new Promise((resolve: (value: CrawlMapResult) => void) => {
+  const responseMapData = (): Promise<CrawlMapResult[]> => {
+    return new Promise((resolve: (value: CrawlMapResult[]) => void) => {
       page.on('response', async (response) => {
         if (
           response.request().method() === 'GET' &&

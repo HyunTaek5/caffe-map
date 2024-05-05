@@ -26,7 +26,7 @@ export interface CrawlMapType {
     code: string;
     message: string;
   };
-  result: CrawlMapResult;
+  result: CrawlMapResult[];
 }
 export interface CrawlMapResult {
   folderId: number;
@@ -45,6 +45,6 @@ export interface CrawlMapResult {
 }
 
 export interface ResponseCrawlData {
-  mapInfo: CrawlMapResult;
+  mapInfo: CrawlMapResult[];
   placeList: CrawlPlaceResult[];
 }
