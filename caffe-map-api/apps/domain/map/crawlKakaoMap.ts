@@ -82,9 +82,14 @@ export const crawlKakaoMap = async (
     });
   };
 
+  const mapInfo = await responseMapData();
+  const placeList = await responsePlaceData();
+
+  await browser.close();
+
   return {
-    mapInfo: await responseMapData(),
-    placeList: await responsePlaceData(),
+    mapInfo: mapInfo,
+    placeList: placeList,
   };
 
   // const fetchResult = await fetch(mapShareAddress).catch((err) => {
