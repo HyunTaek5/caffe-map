@@ -9,7 +9,7 @@ export class MapController {
 
   @ApiOperation({
     summary: '지도 생성',
-    description: '지도 생성',
+    description: '카카오 즐겨찾기 공유하기 | 기본 주소로 지도 생성',
   })
   @Post()
   async createMap(@Body() dto: CreateMapDto): Promise<void> {
