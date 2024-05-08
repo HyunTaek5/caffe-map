@@ -6,6 +6,8 @@ import {
   CrawlPlaceResult,
   ResponseCrawlData,
 } from 'apps/domain/map/type/crawlPlace.type';
+import { GetMapListDto } from 'apps/application/map/dto/req/get-map-list.dto';
+import { db } from '../../../db/kysely/database';
 
 @Injectable()
 export class MapService {
@@ -87,5 +89,37 @@ export class MapService {
         });
       });
     });
+  }
+
+  /**
+   * 지도 목록 조회
+   *
+   * @param dto GetMapListDto
+   */
+  async getMapList(dto: GetMapListDto) {
+    const { limit, offset, sort } = dto;
+
+    const result = await db.transaction().execute(async (trx) => {
+      const response = await trx
+        .selectFrom('map')
+        .limit(limit)
+        .offset(offset)
+        .selectAll()
+        .execute();
+
+      const { count } = await trx
+        .selectFrom('map')
+        .select((expressionBuilder) => {
+          return expressionBuilder.fn.countAll().as('count');
+        })
+        .executeTakeFirstOrThrow();
+
+      return {
+        items: response,
+        count,
+      };
+    });
+
+    return result;
   }
 }
