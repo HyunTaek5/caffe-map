@@ -106,7 +106,7 @@ export class MapService {
    * @returns IPaginated<MapDto>
    */
   async getMapList(dto: GetMapListDto): Promise<IPaginated<MapDto>> {
-    const { limit, offset, sort } = dto;
+    const { limit, offset } = dto;
 
     const result = await db.transaction().execute(async (trx) => {
       const items: Map[] = await trx
