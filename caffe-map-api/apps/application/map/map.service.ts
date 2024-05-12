@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMapDto } from 'apps/application/map/dto/req/create-map.dto';
 import { crawlKakaoMap } from 'apps/domain/map/crawlKakaoMap';
 import { PrismaService } from 'apps/application/prisma/prisma.service';
@@ -12,9 +12,10 @@ import {
   IPaginated,
   PaginatedDto,
 } from 'apps/domain/common/dto/response-paginate.dto';
-import { Map } from '../../../db/kysely/type';
+import { Map, Place } from '../../../db/kysely/type';
 import { plainToInstance } from 'class-transformer';
 import { MapDto } from 'apps/application/map/dto/res/map.dto';
+import { GetMapIdResDto } from 'apps/application/map/dto/res/get-map-id-res.dto';
 
 @Injectable()
 export class MapService {
@@ -133,5 +134,43 @@ export class MapService {
     });
 
     return result;
+  }
+
+  /**
+   * id로 지도 상세 조회
+   *
+   * @param id number
+   *
+   * @returns GetMapIdResDto
+   */
+  async getMapById(id: number): Promise<GetMapIdResDto> {
+    const map: Map = await db
+      .selectFrom('map')
+      .where('id', '=', id)
+      .selectAll()
+      .executeTakeFirst();
+
+    if (!map) {
+      throw new NotFoundException('해당 지도 정보가 없습니다.');
+    }
+
+    const places: Place[] = await db
+      .selectFrom('place')
+      .innerJoin(
+        (eb) =>
+          eb
+            .selectFrom('place_map')
+            .select([
+              'place_map.map_id as map_id',
+              'place_map.place_id as place_id',
+            ])
+            .where('map_id', '=', id)
+            .as('place_map'),
+        (join) => join.onRef('place_map.place_id', '=', 'place.id'),
+      )
+      .selectAll()
+      .execute();
+
+    return plainToInstance(GetMapIdResDto, { ...map, places: places });
   }
 }
