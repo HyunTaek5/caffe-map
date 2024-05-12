@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { MapService } from 'apps/application/map/map.service';
 import { CreateMapDto } from 'apps/application/map/dto/req/create-map.dto';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -8,6 +16,7 @@ import {
   IPaginated,
 } from 'apps/domain/common/dto/response-paginate.dto';
 import { MapDto } from 'apps/application/map/dto/res/map.dto';
+import { GetMapIdResDto } from 'apps/application/map/dto/res/get-map-id-res.dto';
 
 @ApiTags('maps')
 @Controller('maps')
@@ -26,6 +35,19 @@ export class MapController {
   @Get()
   async getMapList(@Query() dto: GetMapListDto): Promise<IPaginated<MapDto>> {
     return this.mapService.getMapList(dto);
+  }
+
+  @ApiOperation({
+    summary: '지도 상세 조회',
+    description: '지도 id로 상세 조회',
+    operationId: 'getMapById',
+  })
+  @ApiOkResponse({ type: GetMapIdResDto })
+  @Get('/:id')
+  async getMapById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<GetMapIdResDto> {
+    return this.mapService.getMapById(id);
   }
 
   @ApiOperation({
