@@ -17,6 +17,7 @@ export class MapController {
   @ApiOperation({
     summary: '지도 목록 조회',
     description: '지도 목록 조회',
+    operationId: 'getMapList',
   })
   @ApiOkResponse({
     type: BasePaginatedDto<MapDto>(MapDto, 'MapDto'),
@@ -28,11 +29,12 @@ export class MapController {
   }
 
   @ApiOperation({
-    summary: '지도 생성',
+    summary: '카카오맵 링크로 지도 import',
     description: '카카오 즐겨찾기 공유하기 | 기본 주소로 지도 생성',
+    operationId: 'importMapFromKakao',
   })
-  @Post()
-  async createMap(@Body() dto: CreateMapDto): Promise<void> {
+  @Post('/import')
+  async importMap(@Body() dto: CreateMapDto): Promise<void> {
     await this.mapService.createMap(dto);
   }
 }
