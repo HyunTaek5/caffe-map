@@ -8,6 +8,13 @@ import {
 } from 'apps/domain/map/type/crawlPlace.type';
 import { GetMapListDto } from 'apps/application/map/dto/req/get-map-list.dto';
 import { db } from '../../../db/kysely/database';
+import {
+  IPaginated,
+  PaginatedDto,
+} from 'apps/domain/common/dto/response-paginate.dto';
+import { Map } from '../../../db/kysely/type';
+import { plainToInstance } from 'class-transformer';
+import { MapDto } from 'apps/application/map/dto/res/map.dto';
 
 @Injectable()
 export class MapService {
@@ -95,13 +102,16 @@ export class MapService {
    * 지도 목록 조회
    *
    * @param dto GetMapListDto
+   *
+   * @returns IPaginated<MapDto>
    */
-  async getMapList(dto: GetMapListDto) {
+  async getMapList(dto: GetMapListDto): Promise<IPaginated<MapDto>> {
     const { limit, offset, sort } = dto;
 
     const result = await db.transaction().execute(async (trx) => {
-      const response = await trx
+      const items: Map[] = await trx
         .selectFrom('map')
+        .where('is_deleted', '=', false)
         .limit(limit)
         .offset(offset)
         .selectAll()
@@ -114,10 +124,12 @@ export class MapService {
         })
         .executeTakeFirstOrThrow();
 
-      return {
-        items: response,
-        count,
-      };
+      return new PaginatedDto(
+        plainToInstance(MapDto, items),
+        count.toString(),
+        dto.page,
+        dto.itemsPerPage,
+      );
     });
 
     return result;
