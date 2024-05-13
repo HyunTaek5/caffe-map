@@ -12,7 +12,10 @@
       {
         "name": "@nestjs/swagger",
         "options": {
-          "introspectComments": true
+          "introspectComments": true,
+          "dtoFileNameSuffix": [
+            ".dto.ts", ".entity.ts", ".exception.ts"
+          ]
         }
       }
     ]
