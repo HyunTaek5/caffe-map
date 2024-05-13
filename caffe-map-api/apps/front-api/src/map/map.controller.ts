@@ -9,7 +9,12 @@ import {
 } from '@nestjs/common';
 import { MapService } from 'apps/application/map/map.service';
 import { CreateMapDto } from 'apps/application/map/dto/req/create-map.dto';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { GetMapListDto } from 'apps/application/map/dto/req/get-map-list.dto';
 import {
   BasePaginatedDto,
@@ -17,6 +22,7 @@ import {
 } from 'apps/domain/common/dto/response-paginate.dto';
 import { MapDto } from 'apps/application/map/dto/res/map.dto';
 import { GetMapIdResDto } from 'apps/application/map/dto/res/get-map-id-res.dto';
+import { NotFoundException } from 'apps/domain/common/exceptions/not-found.exception';
 
 @ApiTags('maps')
 @Controller('maps')
@@ -43,6 +49,10 @@ export class MapController {
     operationId: 'getMapById',
   })
   @ApiOkResponse({ type: GetMapIdResDto })
+  @ApiNotFoundResponse({
+    description: '해당 id의 지도 정보가 없을 시 404 에러 반환',
+    type: NotFoundException('해당 지도 정보가 없습니다.'),
+  })
   @Get('/:id')
   async getMapById(
     @Param('id', ParseIntPipe) id: number,
