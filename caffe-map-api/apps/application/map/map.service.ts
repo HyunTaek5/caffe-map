@@ -120,6 +120,7 @@ export class MapService {
 
       const { count } = await trx
         .selectFrom('map')
+        .where('is_deleted', '=', false)
         .select((expressionBuilder) => {
           return expressionBuilder.fn.countAll().as('count');
         })
