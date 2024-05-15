@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Place } from '../../../db/kysely/type';
 import { db } from '../../../db/kysely/database';
 import { GetPlacesDto } from 'apps/application/place/dto/req/get-places.dto';
@@ -58,5 +58,26 @@ export class PlaceService {
       });
 
     return result;
+  }
+
+  /**
+   * 장소 ID로 장소 조회
+   *
+   * @param placeId number
+   *
+   * @returns PlaceDto
+   */
+  async getPlaceById(placeId: number): Promise<PlaceDto> {
+    const place: Place = await db
+      .selectFrom('place')
+      .where('id', '=', placeId)
+      .selectAll()
+      .executeTakeFirst();
+
+    if (!place) {
+      throw new NotFoundException('해당 장소 정보가 없습니다.');
+    }
+
+    return plainToInstance(PlaceDto, place);
   }
 }
