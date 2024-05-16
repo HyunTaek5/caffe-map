@@ -1,3 +1,30 @@
 {
-  "extends": "next/core-web-vitals"
+  "root": true,
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "plugins": [ "simple-import-sort"],
+  "extends": [
+    "next",
+    "prettier"
+  ],
+  "overrides": [
+    {
+      "files": "",
+      "rules": {
+        "simple-import-sort/imports": "error",
+        "simple-import-sort/exports": "error",
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-empty-interface": "off",
+        "@typescript-eslint/ban-ts-comment": "off",
+        "no-empty-function": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "import/no-anonymous-default-export": "off"
+      }
+    }
+  ],
+  "settings": {
+    "import/extensions": [".js", ".jsx", ".ts", ".tsx"]
+  }
 }
