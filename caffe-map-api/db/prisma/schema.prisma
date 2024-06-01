@@ -14,17 +14,23 @@ datasource db {
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
+enum PlaceReviewType {
+  NAVER
+  KAKAO
+}
+
 // 카카오 장소 테이블
 model Place {
-  id        Int        @id @default(autoincrement())
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @default(now()) @updatedAt @map("updated_at")
-  name      String
-  address   String
-  latitude  Float
-  longitude Float
-  kakaoId   String     @map("kakao_id")
-  PlaceMap  PlaceMap[]
+  id          Int           @id @default(autoincrement())
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at")
+  name        String
+  address     String
+  latitude    Float
+  longitude   Float
+  kakaoId     String        @map("kakao_id")
+  PlaceMap    PlaceMap[]
+  PlaceReview PlaceReview[]
 
   @@map("place")
 }
@@ -55,4 +61,17 @@ model PlaceMap {
 
   @@unique([placeId, mapId], name: "place_map_unique")
   @@map("place_map")
+}
+
+// 장소 리뷰 테이블
+model PlaceReview {
+  id        Int             @id @default(autoincrement())
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @default(now()) @updatedAt @map("updated_at")
+  title     String
+  content   String
+  type      PlaceReviewType @default(KAKAO)
+  star      Int
+  placeId   Int             @map("place_id")
+  place     Place           @relation(fields: [placeId], references: [id])
 }
