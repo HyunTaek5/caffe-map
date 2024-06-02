@@ -52,3 +52,18 @@ export interface PlaceMapTable {
 export type PlaceMap = Selectable<PlaceMapTable>;
 export type NewPlaceMap = Insertable<PlaceMapTable>;
 export type PlaceMapUpdate = Updateable<PlaceMapTable>;
+
+export interface PlaceReviewTable {
+  id: Generated<number>;
+  created_at: ColumnType<Date, string | undefined, never>;
+  updated_at: ColumnType<Date, string | undefined, never>;
+  title: string;
+  content: string;
+  type: 'NAVER' | 'KAKAO';
+  star: number;
+  place_id: number;
+}
+
+export type PlaceReview = Selectable<PlaceReviewTable>;
+export type NewPlaceReview = Insertable<PlaceReviewTable>;
+export type PlaceReviewUpdate = Updateable<PlaceReviewTable>;
