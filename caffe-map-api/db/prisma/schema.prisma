@@ -74,4 +74,6 @@ model PlaceReview {
   star      Int
   placeId   Int             @map("place_id")
   place     Place           @relation(fields: [placeId], references: [id])
+
+  @@map("place_review")
 }
