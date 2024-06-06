@@ -64,12 +64,17 @@
     "typescript": "^4.9.5"
   },
   "jest": {
+    "preset": "ts-jest",
     "moduleFileExtensions": [
       "js",
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "rootDir": "apps",
+    "moduleDirectories": [
+      "node_modules",
+      "apps"
+    ],
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
@@ -78,10 +83,10 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node",
-    "volta": {
-      "node": "18.17.0",
-      "npm": "10.8.1"
-    }
+    "testEnvironment": "node"
+  },
+  "volta": {
+    "node": "18.17.0",
+    "npm": "10.8.1"
   }
 }
