@@ -91,10 +91,4 @@ export const crawlKakaoMap = async (
     mapInfo: mapInfo,
     placeList: placeList,
   };
-
-  // const fetchResult = await fetch(mapShareAddress).catch((err) => {
-  //   console.log(err);
-  // });
-  //
-  // console.log(fetchResult);
 };
